@@ -125,5 +125,6 @@ form input:focus{
     align-items: center;
     justify-self: center;
     padding: 0.2rem 2rem 0.5rem 2rem;
+    text-align: center;
 }
 
