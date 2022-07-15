@@ -110,11 +110,6 @@ form input:focus{
     align-self: end; 
 }
 
-
-.card, .delete-card, .desc{
-    background-color: #f8f9fa;
-}
-
 .card{
     border: 1px solid #ced4da;
     border-radius: 10px;
@@ -126,5 +121,6 @@ form input:focus{
     justify-self: center;
     padding: 0.2rem 2rem 0.5rem 2rem;
     text-align: center;
+    background-color: #f8f9fa;
 }
 

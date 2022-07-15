@@ -15,8 +15,11 @@ class Library {
             this.books = []
         }else{
             this.books = inBooks    
-        }
-         
+        }    
+    }
+
+    setBooks(inBooks){
+        this.books = inBooks
     }
 
     addBook(inBook){
@@ -29,6 +32,14 @@ class Library {
 
     getBooks(){
         return this.books
+    }
+
+    setStatus(bookName){
+        this.books.filter((book) => {
+            if(book.getName() === bookName){
+                book.setStatus()
+            }
+        })
     }
 }
 
@@ -60,5 +71,81 @@ class Book{
         this.status = !this.status
     } 
 }
+
+class Storage {
+    
+    static setLibrary(library){
+        localStorage.setItem('library', JSON.stringify(library))
+    }
+
+    static getLibrary(){
+        const library = Object.assign(new Library(), JSON.parse(localStorage.getItem('library')))
+        library.setBooks(library.getBooks().map((book) => Object.assign(new Book(), book)))
+
+        return library
+    }
+
+    static addBook(book){
+        const library = Storage.getLibrary()
+        library.addBook(book)
+        Storage.setLibrary(library)
+    }
+
+    static deleteBook(bookName){
+        const library = Storage.getLibrary()
+        library.deleteBook(bookName)
+        Storage.setLibrary(library)
+    }
+
+    static setStatus(bookName){
+        const library = Storage.getLibrary()
+        library.setStatus(bookName)
+        Storage.setLibrary(library)
+    }
+}
+
+const drawBook = (book) => {
+    const bookCard = document.createElement('div')
+    bookCard.classList.add('card')
+     
+    const bookName = document.createElement('h2')
+    bookName.textContent = book.getName()
+
+    const bookAuthor = document.createElement('p')
+    bookAuthor.textContent = book.getAuthor()
+
+    const bookPages = document.createElement('p')
+    bookPages.textContent = `Pages: ${book.getPages()}`
+
+    const bookStatus = document.createElement('p')
+    bookStatus.textContent = book.getStatus() ? 'Read' : 'In progress'
+    bookStatus.classList.add('status-button')
+
+    const deleteBook = document.createElement('i')
+    deleteBook.classList.add('fa-solid', 'fa-xmark', 'delete-card')
+
+    bookCard.appendChild(deleteBook)
+    bookCard.appendChild(bookName)
+    bookCard.appendChild(bookAuthor)
+    bookCard.appendChild(bookPages)
+    bookCard.appendChild(bookStatus)
+    
+
+    return bookCard
+
+}
+
+const book1 = new Book('Harry Potter', 'J.K. Rowling', 400, false)
+const book2 = new Book('The Lord of the Rings', 'J.R.R. Tolkien', 1000, false)
+const book3 = new Book('The Hobbit', 'J.R.R. Tolkien', 400, true)
+
+const library = new Library([book1, book2, book3])
+
+Storage.setLibrary(library)
+
+const library2 = Storage.getLibrary()
+console.log(library2)
+
+mainDisplay.appendChild(drawBook(book1))
 
 
