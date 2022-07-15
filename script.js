@@ -110,12 +110,15 @@ const drawBook = (book) => {
      
     const bookName = document.createElement('h2')
     bookName.textContent = book.getName()
+    bookName.classList.add('card-title')
 
     const bookAuthor = document.createElement('p')
     bookAuthor.textContent = book.getAuthor()
+    bookAuthor.classList.add('bg-color')
 
     const bookPages = document.createElement('p')
     bookPages.textContent = `Pages: ${book.getPages()}`
+    bookPages.classList.add('bg-color')
 
     const bookStatus = document.createElement('p')
     bookStatus.textContent = book.getStatus() ? 'Read' : 'In progress'
@@ -135,6 +138,29 @@ const drawBook = (book) => {
 
 }
 
+const getNewBook = () => {
+    const nameField = document.querySelector('.form-title')
+    const bookTitle = nameField.value
+
+    const authorField = document.querySelector('.form-author')
+    const bookAuthor = authorField.value
+
+    const pagesField = document.querySelector('.form-pages')
+    const bookPages = pagesField.value
+
+    const statusCheckbox = document.querySelector('#status')
+    const bookStatus = statusCheckbox.checked
+
+    const newBook = new Book(bookTitle, bookAuthor, bookPages, bookStatus)
+    
+    nameField.value = ''
+    authorField.value = ''
+    pagesField.value = ''
+    statusCheckbox.checked = true
+
+    return newBook
+}
+
 const book1 = new Book('Harry Potter', 'J.K. Rowling', 400, false)
 const book2 = new Book('The Lord of the Rings', 'J.R.R. Tolkien', 1000, false)
 const book3 = new Book('The Hobbit', 'J.R.R. Tolkien', 400, true)
@@ -147,5 +173,17 @@ const library2 = Storage.getLibrary()
 console.log(library2)
 
 mainDisplay.appendChild(drawBook(book1))
+
+addButton.addEventListener('click', () => {
+    form.style.visibility = 'visible'
+})
+
+submitButton.addEventListener('click', (e) => {
+    e.preventDefault()
+    const newBook = getNewBook()
+    Storage.addBook(newBook)
+    mainDisplay.appendChild(drawBook(newBook))
+    form.style.visibility = 'hidden'
+})
 
 
