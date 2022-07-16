@@ -1,8 +1,6 @@
 
 const addButton = document.querySelector('.open-form')
 const submitButton = document.querySelector('.submit-form')
-const statusButton = document.querySelector('.status-button')
-const deleteCard = document.querySelector('.delete-card')
 const form = document.querySelector('form')
 const mainDisplay = document.querySelector('.cards')
 
@@ -104,39 +102,95 @@ class Storage {
     }
 }
 
-const drawBook = (book) => {
-    const bookCard = document.createElement('div')
-    bookCard.classList.add('card')
+class UI {
+
+    static initializeUI(){
+        UI.drawLibrary()
+        UI.statusEvent()
+        UI.deleteBook()
+    }
+
+    static drawBook (book) {
+        const bookCard = document.createElement('div')
+        bookCard.classList.add('card')
      
-    const bookName = document.createElement('h2')
-    bookName.textContent = book.getName()
-    bookName.classList.add('card-title')
+        const bookName = document.createElement('h2')
+        bookName.textContent = book.getName()
+        bookName.classList.add('card-title')
 
-    const bookAuthor = document.createElement('p')
-    bookAuthor.textContent = book.getAuthor()
-    bookAuthor.classList.add('bg-color')
+        const bookAuthor = document.createElement('p')
+        bookAuthor.textContent = book.getAuthor()
+        bookAuthor.classList.add('bg-color')
 
-    const bookPages = document.createElement('p')
-    bookPages.textContent = `Pages: ${book.getPages()}`
-    bookPages.classList.add('bg-color')
+        const bookPages = document.createElement('p')
+        bookPages.textContent = `Pages: ${book.getPages()}`
+        bookPages.classList.add('bg-color')
 
-    const bookStatus = document.createElement('p')
-    bookStatus.textContent = book.getStatus() ? 'Read' : 'In progress'
-    bookStatus.classList.add('status-button')
+        const bookStatus = document.createElement('p')
+        if(book.getStatus()){
+            bookStatus.textContent = 'Read'
+            bookStatus.style.backgroundColor = '#A8B090'
+            bookStatus.style.borderColor = '#99A083'
+        }else{
+            bookStatus.textContent = 'In progress'
+            bookStatus.style.backgroundColor = '#c1121f'
+            bookStatus.style.borderColor = '#c1121f'
+        }
+        bookStatus.classList.add('status-button')
 
-    const deleteBook = document.createElement('i')
-    deleteBook.classList.add('fa-solid', 'fa-xmark', 'delete-card')
 
-    bookCard.appendChild(deleteBook)
-    bookCard.appendChild(bookName)
-    bookCard.appendChild(bookAuthor)
-    bookCard.appendChild(bookPages)
-    bookCard.appendChild(bookStatus)
-    
+        const deleteBook = document.createElement('i')
+        deleteBook.classList.add('fa-solid', 'fa-xmark', 'delete-card')
 
-    return bookCard
+        bookCard.appendChild(deleteBook)
+        bookCard.appendChild(bookName)
+        bookCard.appendChild(bookAuthor)
+        bookCard.appendChild(bookPages)
+        bookCard.appendChild(bookStatus)
+        
 
+        return bookCard
+    }
+
+    static deleteBook = () =>{
+        const deleteButtons = document.querySelectorAll('.delete-card')
+
+        deleteButtons.forEach((button) => {
+            button.addEventListener('click', (e)=>{
+                const bookName = e.target.parentElement.querySelector('.card-title').textContent
+                Storage.deleteBook(bookName)
+                e.target.parentElement.remove()
+            })
+        })
+    }
+
+    static drawLibrary () {
+        Storage.getLibrary().getBooks().forEach((book) =>{
+            mainDisplay.appendChild(UI.drawBook(book))
+        })
+    }
+
+    static statusEvent(){
+        const statusButtons = document.querySelectorAll('.status-button')
+
+        statusButtons.forEach((button) => {
+            button.addEventListener('click', (e) =>{
+                const bookName = e.target.parentElement.querySelector('.card-title').textContent
+                Storage.setStatus(bookName)
+                if(e.target.textContent === 'Read'){
+                    e.target.textContent = 'In progress'
+                    e.target.style.backgroundColor = '#c1121f'
+                    e.target.style.borderColor = '#c1121f'
+                }else{
+                    e.target.textContent = 'Read'
+                    e.target.style.backgroundColor = '#A8B090'
+                    e.target.style.borderColor = '#99A083'
+                }
+            })
+        })
+    }
 }
+
 
 const getNewBook = () => {
     const nameField = document.querySelector('.form-title')
@@ -151,39 +205,32 @@ const getNewBook = () => {
     const statusCheckbox = document.querySelector('#status')
     const bookStatus = statusCheckbox.checked
 
-    const newBook = new Book(bookTitle, bookAuthor, bookPages, bookStatus)
+    if(bookTitle === '' || bookAuthor === '' || bookPages === ''){
+        alert('Please fill in all fields')
+    }else{
+        const newBook = new Book(bookTitle, bookAuthor, bookPages, bookStatus)
     
-    nameField.value = ''
-    authorField.value = ''
-    pagesField.value = ''
-    statusCheckbox.checked = true
+        nameField.value = ''
+        authorField.value = ''
+        pagesField.value = ''
+        statusCheckbox.checked = true
 
-    return newBook
+        return newBook
+    }
 }
 
-const book1 = new Book('Harry Potter', 'J.K. Rowling', 400, false)
-const book2 = new Book('The Lord of the Rings', 'J.R.R. Tolkien', 1000, false)
-const book3 = new Book('The Hobbit', 'J.R.R. Tolkien', 400, true)
-
-const library = new Library([book1, book2, book3])
-
-Storage.setLibrary(library)
-
-const library2 = Storage.getLibrary()
-console.log(library2)
-
-mainDisplay.appendChild(drawBook(book1))
-
 addButton.addEventListener('click', () => {
-    form.style.visibility = 'visible'
+    form.style.visibility = form.style.visibility === 'visible' ? 'hidden' : 'visible'
 })
 
 submitButton.addEventListener('click', (e) => {
     e.preventDefault()
     const newBook = getNewBook()
     Storage.addBook(newBook)
-    mainDisplay.appendChild(drawBook(newBook))
+    mainDisplay.appendChild(UI.drawBook(newBook))
+    UI.deleteBook()
+    UI.statusEvent()
     form.style.visibility = 'hidden'
 })
 
-
+UI.initializeUI()
